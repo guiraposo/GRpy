@@ -1,4 +1,3 @@
-!pip install sympy
 import simpy as sp
 
 def christoffel_symbols(metric, coords):
