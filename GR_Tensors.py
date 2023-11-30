@@ -48,7 +48,7 @@ def einstein_tensor(ricci_tensor, ricci_scalar, metric):
     einstein = sp.zeros(dims, dims)
     for mu in range(dims):
         for nu in range(dims):
-            einstein[mu, nu] = ricci_tensor[mu, nu] - 1/2 * metric[mu, nu] * ricci_scalar
+            einstein[mu, nu] = ricci_tensor[mu, nu] - sp.Rational(1/2) * metric[mu, nu] * ricci_scalar
     return sp.simplify(einstein)
 def stress_energy_tensor_perfect_fluid(rho, p, u, metric):
     dims = metric.shape[0]
