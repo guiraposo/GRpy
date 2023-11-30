@@ -15,20 +15,7 @@ def christoffel_symbols(metric, coords):
                     sum_term += inv_metric[k, l] * (partial_1 + partial_2 - partial_3)
                 christoffel[k][i][j] = sp.simplify(sum_term / 2)
     return christoffel
-def riemann_tensor(christoffel, coords):
-    dims = len(coords)
-    R = [[[sp.zeros(dims, dims) for _ in range(dims)] for _ in range(dims)] for _ in range(dims)]
-    for rho in range(dims):
-        for sigma in range(dims):
-            for mu in range(dims):
-                for nu in range(dims):
-                    term1 = sp.simplify(sp.diff(christoffel[rho][nu][sigma], coords[mu]))
-                    term2 = sp.simplify(sp.diff(christoffel[rho][mu][sigma], coords[nu]))
-                    term3 = sp.simplify(sum(christoffel[rho][mu][lambda1] * christoffel[lambda1][nu][sigma] for lambda1 in range(dims)))
-                    term4 = sp.simplify(sum(christoffel[rho][nu][lambda1] * christoffel[lambda1][mu][sigma] for lambda1 in range(dims)))
-                    R[rho][sigma][mu][nu] = sp.simplify(term1 - term2 + term3 - term4)
-    return R
-def riemann_tensor2(metric, coords):
+def riemann_tensor(metric, coords):
     dims = len(coords)
     christoffel_symbols_metric = christoffel_symbols(metric, coords)
     R = [[[sp.zeros(dims, dims) for _ in range(dims)] for _ in range(dims)] for _ in range(dims)]
@@ -42,27 +29,31 @@ def riemann_tensor2(metric, coords):
                     term4 = sp.simplify(sum(christoffel_symbols_metric[rho][nu][lambda1] * christoffel_symbols_metric[lambda1][mu][sigma] for lambda1 in range(dims)))
                     R[rho][sigma][mu][nu] = sp.simplify(term1 - term2 + term3 - term4)
     return R
-def ricci_tensor(riemann, coords):
+def ricci_tensor(metric, coords):
     dims = len(coords)
+    riemann = riemann_tensor(metric, coords)
     ricci = sp.zeros(dims, dims)
     for mu in range(dims):
         for nu in range(dims):
             ricci[mu, nu] = sp.simplify(sum(riemann[lambda1][mu][lambda1][nu] for lambda1 in range(dims)))
     return ricci
-def ricci_scalar(ricci, metric):
+def ricci_scalar(metric, coords):
     inv_metric = metric.inv()
+    ricci = ricci_tensor(metric, coords)
     dims = metric.shape[0]
     scalar = 0
     for mu in range(dims):
         for nu in range(dims):
             scalar += sp.simplify(inv_metric[mu, nu] * ricci[mu, nu])
     return sp.simplify(scalar)
-def einstein_tensor(ricci_tensor, ricci_scalar, metric):
+def einstein_tensor(metric, coords):
     dims = metric.shape[0]
+    ricci = ricci_tensor(metric, coords)
+    scalar = ricci_scalar(metric, coords)
     einstein = sp.zeros(dims, dims)
     for mu in range(dims):
         for nu in range(dims):
-            einstein[mu, nu] = ricci_tensor[mu, nu] - sp.Rational(1/2) * metric[mu, nu] * ricci_scalar
+            einstein[mu, nu] = ricci[mu, nu] - sp.Rational(1/2) * metric[mu, nu] * scalar
     return sp.simplify(einstein)
 def stress_energy_tensor_perfect_fluid(rho, p, u, metric):
     dims = metric.shape[0]
