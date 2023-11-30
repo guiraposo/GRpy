@@ -28,6 +28,20 @@ def riemann_tensor(christoffel, coords):
                     term4 = sp.simplify(sum(christoffel[rho][nu][lambda1] * christoffel[lambda1][mu][sigma] for lambda1 in range(dims)))
                     R[rho][sigma][mu][nu] = sp.simplify(term1 - term2 + term3 - term4)
     return R
+def riemann_tensor2(metric, coords):
+    dims = len(coords)
+    christoffel_symbols_metric = christoffel_symbols(metric, coords)
+    R = [[[sp.zeros(dims, dims) for _ in range(dims)] for _ in range(dims)] for _ in range(dims)]
+    for rho in range(dims):
+        for sigma in range(dims):
+            for mu in range(dims):
+                for nu in range(dims):
+                    term1 = sp.simplify(sp.diff(christoffel_symbols_metric[rho][nu][sigma], coords[mu]))
+                    term2 = sp.simplify(sp.diff(christoffel_symbols_metric[rho][mu][sigma], coords[nu]))
+                    term3 = sp.simplify(sum(christoffel_symbols_metric[rho][mu][lambda1] * christoffel_symbols_metric[lambda1][nu][sigma] for lambda1 in range(dims)))
+                    term4 = sp.simplify(sum(christoffel_symbols_metric[rho][nu][lambda1] * christoffel_symbols_metric[lambda1][mu][sigma] for lambda1 in range(dims)))
+                    R[rho][sigma][mu][nu] = sp.simplify(term1 - term2 + term3 - term4)
+    return R
 def ricci_tensor(riemann, coords):
     dims = len(coords)
     ricci = sp.zeros(dims, dims)
