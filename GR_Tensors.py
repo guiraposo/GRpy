@@ -1,4 +1,4 @@
-import simpy as sp
+import sympy as sp
 
 def christoffel_symbols(metric, coords):
     dims = metric.shape[0]
