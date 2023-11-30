@@ -1,3 +1,5 @@
+import simpy as sp
+
 def christoffel_symbols(metric, coords):
     dims = metric.shape[0]
     christoffel = [[[0 for _ in range(dims)] for _ in range(dims)] for _ in range(dims)]
